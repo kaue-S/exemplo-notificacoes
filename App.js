@@ -30,19 +30,33 @@ export default function App() {
     permissoesIos();
 
     /* o que fazer quando a notificação for recebida no app */
-    Notifications.addNotificationReceivedListener((notifcacao) => {
-      console.log(notifcacao);
+    Notifications.addNotificationReceivedListener((notificacao) => {
+      console.log(notificacao);
     });
 
     /* evento de resposta para dadas às notificações, ou seja, qunado o usuário interage(toca) na notificação */
-    Notifications.addNotificationReceivedListener((resposta) => {
-      console.log(resposta);
+    Notifications.addNotificationResponseReceivedListener((resposta) => {
+      setDados(resposta.notification.request.content.data);
     });
   }, []);
 
-  const enviarMensagem = () => {
+  const enviarMensagem = async () => {
     /* montar a mensagem que será enviada via sistema de notificações */
-    const mensagem = {};
+    const mensagem = {
+      title: "Lembrete! 😃",
+      body: "Não se esqueça de estudar muito...",
+      data: {
+        usuario: "Chapolin colorado",
+        cidade: "São Paulo",
+      },
+    };
+
+    /* Função de agendamento de notificações */
+    await Notifications.scheduleNotificationAsync({
+      content: mensagem,
+      //acionador/disparador de notificação
+      trigger: { seconds: 5 },
+    });
   };
 
   return (
@@ -51,6 +65,12 @@ export default function App() {
       <View style={styles.container}>
         <Text>Exemplo de notificação local</Text>
         <Button title="Disparar notificação" onPress={enviarMensagem} />
+        {dados && (
+          <View>
+            <Text>Usuário: {dados.usuario}</Text>
+            <Text>Cidade: {dados.cidade}</Text>
+          </View>
+        )}
       </View>
     </>
   );
